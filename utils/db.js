@@ -30,7 +30,7 @@ class DBClient {
   }
 
   isAlive() {
-    return this.client.isConnected(); // this.checkalive;
+    return this.client.isConnected();
   }
 
   async nbUsers() {
