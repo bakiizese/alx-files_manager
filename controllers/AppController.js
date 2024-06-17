@@ -11,11 +11,10 @@ class AppController {
   }
 
   static getStats(req, res) {
-    const data = {
-      users: db.nbUsers(),
-      files: db.nbFiles(),
-    };
-    res.status(200).json(data);
+    Promise.all([db.nbUsers(), db.nbFiles()])
+      .then(([usnum, filenum]) => {
+        res.status(200).json({ users: usnum, files: filenum });
+      });
   }
 }
 
