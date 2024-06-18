@@ -20,7 +20,7 @@ class UsersController {
       return;
     }
     const hashed = sha1(password);
-    const userId = await (await db.usersCollection()).insertOne({ email, hashed });
+    const userId = await (await db.usersCollection()).insertOne({ email, password: hashed });
     res.status(201).json({ id: userId.insertedId.toString(), email: email });
   }
 }
