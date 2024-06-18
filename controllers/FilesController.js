@@ -67,7 +67,7 @@ class FilesController {
     });
 
     const newFile = await (await db.filesCollection()).insertOne({
-      userId: user._id, name, type, parentId, isPublic, localPath: `folderPath/${uuidName}`,
+      userId: user._id, name, type, parentId, isPublic, localPath: `${folderPath}/${uuidName}`,
     });
 
     return res.status(201).json({
