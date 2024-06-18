@@ -49,7 +49,7 @@ class FilesController {
         userId: user._id, name, type, parentId, isPublic,
       });
       const dir = path.dirname(folderPath);
-      fs.mkdir(dir, { recursive: true }, (err) => { console.log(err); });
+      fs.mkdir(dir, { recursive: true }, () => {});
 
       return res.status(201).json({
         id: newFilefolder.insertedId, userId: user._id, name, type, isPublic, parentId,
@@ -62,7 +62,7 @@ class FilesController {
     const dataBase64 = Buffer.from(data, 'base64').toString('utf-8');
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (!err) {
-        fs.writeFile(`${folderPath}/${uuidName}`, dataBase64, (err) => { console.log(err); });
+        fs.writeFile(`${folderPath}/${uuidName}`, dataBase64, () => {});
       }
     });
 
