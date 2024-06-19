@@ -95,14 +95,17 @@ class FilesController {
     const token = req.headers['x-token'];
     const userid = await redis.get(`auth_${token}`);
     const page = parseInt(req.query.page, 10) || 0;
-    const parentId = req.query.parentId ? req.query.parentId : 0;
+    let parentId = req.query.parentId ? req.query.parentId : null;
     const limit = 20;
     const skip = page * limit;
     const user = await (await db.usersCollection()).findOne({ _id: ObjectId(userid) });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
-    } 
-    const matchs = {userId: ObjectId(userid), parentId: parentId}
+    }
+    let matchs = parentId ? {userId: ObjectId(userid), parentId: parentId} : {userId: ObjectId(userid)}
+    if (parentId === '0'){
+      matchs = {userId: ObjectId(userid)}
+    }
     const pipeline = [
      { $match: matchs },
       { $skip: skip },
