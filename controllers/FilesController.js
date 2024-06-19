@@ -88,7 +88,7 @@ class FilesController {
     if (!findFile) {
       return res.status(404).json({ error: 'Not found' });
     }
-    return res.status(200).json(findFile);
+    return res.status(200).json({id: ids, userId: userid, name: findFile.name, type: findFile.type, isPublic: findFile.isPublic, parentId: findFile.parentId });
   }
 
   static async getIndex(req, res) {
