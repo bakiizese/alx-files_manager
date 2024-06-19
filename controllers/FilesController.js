@@ -74,6 +74,43 @@ class FilesController {
       id: newFile.insertedId, userId: user._id, name, type, isPublic, parentId,
     });
   }
+
+  static async getShow(req, res) {
+    const token = req.headers['x-token'];
+    const ids = req.params.id;
+    const userid = await redis.get(`auth_${token}`);
+    const user = await (await db.usersCollection()).findOne({ _id: ObjectId(userid) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const findFile = await (await db.filesCollection())
+      .findOne({ _id: ObjectId(ids), userId: ObjectId(userid) });
+    if (!findFile) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    return res.status(200).json(findFile);
+  }
+
+  static async getIndex(req, res) {
+    const token = req.headers['x-token'];
+    const userid = await redis.get(`auth_${token}`);
+    const page = parseInt(req.query.page, 10) || 0;
+    const limit = 20;
+    const skip = page * limit;
+    const user = await (await db.usersCollection()).findOne({ _id: ObjectId(userid) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const pipeline = [
+      req.query.parentId ? { $match: { parentId: ObjectId(req.query.parentId) } } : { $match: {} },
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const arrayFile = await (await db.filesCollection()).aggregate(pipeline).toArray();
+    return res.status(200).json(arrayFile);
+  }
 }
 
 module.exports = FilesController;
