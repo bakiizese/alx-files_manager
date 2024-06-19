@@ -37,7 +37,7 @@ class FilesController {
     }
 
     if (parentId !== 0) {
-      const findByparent = await (await db.filesCollection()).findOne({ parentId });
+      const findByparent = await (await db.filesCollection()).findOne({ _id: ObjectId(parentId) });
       if (!findByparent) {
         return res.status(400).json({ error: 'Parent not found' });
       } if (findByparent.type !== 'folder') {
