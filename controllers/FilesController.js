@@ -138,6 +138,65 @@ class FilesController {
     const arrayFile = await (await db.filesCollection()).aggregate(pipeline).toArray();
     return res.status(200).json(arrayFile);
   }
+
+  static async putPublish(req, res) {
+    const { id } = req.params;
+    const token = req.headers['x-token'];
+    const userid = await redis.get(`auth_${token}`);
+    const user = await (await db.usersCollection()).findOne({ _id: ObjectId(userid) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const findFile = await (await db.filesCollection())
+      .findOne({ _id: ObjectId(id), userId: ObjectId(userid) });
+    if (!findFile) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    const update = {
+      $set: { isPublic: true },
+    };
+    await (await db.filesCollection())
+      .updateOne({ _id: ObjectId(id), userId: ObjectId(userid) }, update);
+    const findFiles = await (await db.filesCollection())
+      .findOne({ _id: ObjectId(id), userId: ObjectId(userid) });
+    return res.status(200).json({
+      id,
+      userId: userid,
+      name: findFiles.name,
+      type: findFiles.type,
+      isPublic: findFiles.isPublic,
+      parentId: findFiles.parentId,
+    });
+  }
+  static async putUnpublish(req, res) {
+    const { id } = req.params;
+    const token = req.headers['x-token'];
+    const userid = await redis.get(`auth_${token}`);
+    const user = await (await db.usersCollection()).findOne({ _id: ObjectId(userid) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const findFile = await (await db.filesCollection())
+      .findOne({ _id: ObjectId(id), userId: ObjectId(userid) });
+    if (!findFile) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    const update = {
+      $set: { isPublic: false } 
+    };
+    await (await db.filesCollection())
+      .updateOne({ _id: ObjectId(id), userId: ObjectId(userid) }, update);
+    const findFiles = await (await db.filesCollection())
+      .findOne({ _id: ObjectId(id), userId: ObjectId(userid) });
+    return res.status(200).json({
+      id,
+      userId: userid,
+      name: findFiles.name,
+      type: findFiles.type,
+      isPublic: findFiles.isPublic,
+      parentId: findFiles.parentId,
+    });
+  }
 }
 
 module.exports = FilesController;
